@@ -236,34 +236,22 @@ function showStars(){ document.getElementById("starCount").textContent = stars; 
 function addStar(){ stars++; localStorage.setItem("roseStars",stars); showStars(); if(typeof checkOutfits==="function") checkOutfits(true); }
 showStars();
 
-function speak(text, opt){
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.rate = (opt&&opt.rate)||0.85; u.pitch = (opt&&opt.pitch)||1.1;
-    speechSynthesis.speak(u);
-  }catch(e){}
-}
-function speakSlow(parts, whole){
-  speechSynthesis.cancel();
-  let delay = 0;
-  parts.forEach(p=>{ setTimeout(()=>speak(p,{rate:0.6}), delay); delay += 750; });
-  if(whole) setTimeout(()=>speak(whole,{rate:0.8}), delay+200);
-}
 function bounce(el){ el.classList.remove("bounce"); void el.offsetWidth; el.classList.add("bounce"); }
 
 /* REAL AUDIO: baked-in MP3 clips (Aria's voice) play everywhere — the device speech
    engine is only a backup, because it is silent in some app previews/webviews. */
 const audioEl = new Audio();
 function playClip(src, fb, onend){
+  /* Every voice in this app is a Rumi recording. There is deliberately NO
+     device-voice fallback — Amanda removed the phone's built-in voice. */
   try{
     audioEl.pause();
-    audioEl.onerror = ()=>{ if(fb) speak(fb); };
+    audioEl.onerror = ()=>{};
     audioEl.src = src;
     if(onend){ audioEl.onended = ()=>{ audioEl.onended=null; onend(); }; } else audioEl.onended = null;
-    const p = audioEl.play();
-    if(p) p.catch(()=>{ if(fb) speak(fb); });
-  }catch(e){ if(fb) speak(fb); }
+    const pr = audioEl.play();
+    if(pr) pr.catch(()=>{});
+  }catch(e){}
 }
 
 /* nav */
@@ -273,7 +261,6 @@ document.querySelectorAll("nav button").forEach(b=>{
     document.querySelectorAll("section").forEach(x=>x.classList.remove("show"));
     b.classList.add("active");
     document.getElementById(b.dataset.sec).classList.add("show");
-    speak(b.textContent.replace(/[^a-zA-Z ]/g,"").trim());
   });
 });
 
@@ -317,7 +304,7 @@ traceSel.addEventListener("change",()=>{ updateGhost(); traceDraw.clear(); });
 document.getElementById("traceLevel").addEventListener("change",()=>{ updateGhost(); traceDraw.clear(); });
 document.getElementById("hearTrace").addEventListener("click",()=>playClip("audio/letter_"+traceSel.value+".mp3", PHON[traceSel.value]+". "+traceSel.value+" is for "+(EXAMPLE[traceSel.value]||"")));
 document.getElementById("clearTrace").addEventListener("click",()=>traceDraw.clear());
-document.getElementById("didTrace").addEventListener("click",()=>{ addStar(); speak("You did it! You drew the letter "+traceSel.value+"! Star for you!"); });
+document.getElementById("didTrace").addEventListener("click",()=>{ addStar(); playClip("audio/prompt_did_it.mp3"); });
 updateGhost();
 
 /* BLEND */
@@ -340,7 +327,7 @@ function showBlend(){
     btn.addEventListener("click",()=>{ bounce(btn); playClip("audio/letter_"+L+".mp3", PHON[L]||L); });
     wrap.appendChild(btn);
   });
-  speak("Tap each slime. Then blend it!");
+  playClip("audio/prompt_blend.mp3");
 }
 document.getElementById("blendBtn").addEventListener("click",()=>{
   const item = BLEND[bi];
@@ -365,7 +352,7 @@ function showSpell(){
   const slots = document.getElementById("spellSlots"); slots.innerHTML="";
   item.w.split("").forEach(()=>{ const d=document.createElement("div"); d.className="slot"; slots.appendChild(d); });
   spellDraw.clear(); updateDrawPrompt();
-  speak("Spell this word. Tap hear the word if you need it again.");
+  playClip("audio/prompt_spell.mp3");
 }
 function updateDrawPrompt(){
   const item = SPELL[si];
@@ -382,11 +369,11 @@ document.getElementById("nextLetter").addEventListener("click",()=>{
   const img = document.createElement("img"); img.src = spellDraw.snapshot(); img.alt="Rose's letter";
   slots[letterIdx].innerHTML=""; slots[letterIdx].appendChild(img);
   drawn.push(true); letterIdx++; spellDraw.clear(); updateDrawPrompt();
-  speak(letterIdx<item.w.length ? "Good! Next letter." : "Finished! Check your word!");
+  playClip(letterIdx<item.w.length ? "audio/prompt_next_letter.mp3" : "audio/prompt_finished.mp3");
 });
 document.getElementById("showSpell").addEventListener("click",()=>{
   document.getElementById("spellAnswer").style.visibility="visible";
-  speak("The word is "+SPELL[si].w.split("").join(", ")+". "+SPELL[si].w+". Did your letters match? Great spelling, Rose!");
+  playClip("audio/spellcheck_"+SPELL[si].w+".mp3");
   addStar();
 });
 /* typing: plain full keyboard, nothing highlighted, whole-word check only */
@@ -399,8 +386,8 @@ const kb = document.getElementById("kb");
 document.getElementById("backTyped").addEventListener("click",()=>{ const t=document.getElementById("typed"); t.textContent=t.textContent.slice(0,-1); });
 document.getElementById("doneTyped").addEventListener("click",()=>{
   const t=document.getElementById("typed").textContent.trim().toLowerCase(), target=SPELL[si].w, msg=document.getElementById("typeMsg");
-  if(t===target){ msg.textContent="⭐ YES! You spelled "+target+"!"; speak("Yes! You spelled "+target+"! Star for you!"); addStar(); }
-  else { msg.textContent="Listen and try the whole word again — you can do it!"; speakSlow(target.split("").map(L=>PHON[L]||L), target); document.getElementById("typed").textContent=""; }
+  if(t===target){ msg.textContent="⭐ YES! You spelled "+target+"!"; playClip("audio/typed_"+target+".mp3"); addStar(); }
+  else { msg.textContent="Listen and try the whole word again — you can do it!"; playClip("audio/prompt_try_again.mp3", null, ()=>playClip("audio/word_"+target+".mp3")); document.getElementById("typed").textContent=""; }
 });
 document.getElementById("nextSpell").addEventListener("click",()=>{ si=(si+1)%SPELL.length; showSpell(); });
 showSpell();
@@ -505,7 +492,7 @@ function renderWardrobe(){
     b.innerHTML="<span class='oe'>"+(unlocked?o.e:"🔒")+"</span>"+(unlocked?o.name:("⭐ "+o.need+" stars"));
     if(unlocked) b.addEventListener("click",()=>{
       if(worn.includes(idx)) worn = worn.filter(x=>x!==idx);
-      else { worn = worn.filter(x=>OUTFITS[x].pos!==o.pos); worn.push(idx); speak("Mira is wearing the "+o.name+"! She looks lovely!"); }
+      else { worn = worn.filter(x=>OUTFITS[x].pos!==o.pos); worn.push(idx); playClip("audio/wearing_"+idx+".mp3"); }
       localStorage.setItem("roseWorn",JSON.stringify(worn)); renderWardrobe();
     });
     w.appendChild(b);
@@ -521,8 +508,8 @@ function checkOutfits(announce){
     const item = OUTFITS[now-1];
     const banner=document.getElementById("outfitBanner");
     banner.style.display="block";
-    banner.textContent="🎉 You finished lessons and earned a new outfit for Mira: "+item.e+" "+item.name+"! Go to Dress-Up to put it on her!";
-    setTimeout(()=>speak("You earned a new outfit for Mira! The "+item.name+"! Go dress her up!"), 2600);
+    banner.textContent="🎉 You finished lessons and earned a new outfit: "+item.e+" "+item.name+"! Go to Dress-Up to put it on her!";
+    setTimeout(()=>playClip("audio/outfit_earned_"+(now-1)+".mp3"), 2600);
   }
   knownUnlocked = now; renderWardrobe();
   if(typeof renderSurprise==="function") renderSurprise();
@@ -546,10 +533,10 @@ function applyDoll(){
 }
 const bp=document.getElementById("basePicker");
 BASES.forEach(b=>{ const btn=document.createElement("button"); btn.className="chip"; btn.dataset.v=b; btn.style.fontSize="1.8rem"; btn.textContent=b;
-  btn.addEventListener("click",()=>{ dollBase=b; localStorage.setItem("roseDollBase",b); applyDoll(); speak("Pretty!"); }); bp.appendChild(btn); });
+  btn.addEventListener("click",()=>{ dollBase=b; localStorage.setItem("roseDollBase",b); applyDoll(); playClip("audio/prompt_pretty.mp3"); }); bp.appendChild(btn); });
 const np=document.getElementById("namePicker");
 NAMES.forEach(n=>{ const btn=document.createElement("button"); btn.className="chip"; btn.dataset.v=n; btn.textContent=n;
-  btn.addEventListener("click",()=>{ dollName=n; localStorage.setItem("roseDollName",n); applyDoll(); speak("Her name is "+n+"!"); }); np.appendChild(btn); });
+  btn.addEventListener("click",()=>{ dollName=n; localStorage.setItem("roseDollName",n); applyDoll(); playClip("audio/name_"+n.toLowerCase()+".mp3"); }); np.appendChild(btn); });
 const gp=document.getElementById("bgPicker");
 BGS.forEach(([label,css])=>{ const btn=document.createElement("button"); btn.className="chip"; btn.textContent=label;
   btn.addEventListener("click",()=>{ dollBg=css; localStorage.setItem("roseDollBg",css); applyDoll(); }); gp.appendChild(btn); });
@@ -584,7 +571,7 @@ function renderSurprise(){
   myDolls.forEach(idx=>{
     const d=SURPRISE_DOLLS[idx];
     const b=document.createElement("button"); b.className="chip"; b.textContent=d.base+" "+d.acc+" "+d.name;
-    b.addEventListener("click",()=>{ dollBase=d.base; dollName=d.name; localStorage.setItem("roseDollBase",dollBase); localStorage.setItem("roseDollName",dollName); applyDoll(); speak("Here is "+d.name+"! Dress her up!"); });
+    b.addEventListener("click",()=>{ dollBase=d.base; dollName=d.name; localStorage.setItem("roseDollBase",dollBase); localStorage.setItem("roseDollName",dollName); applyDoll(); playClip("audio/here_"+idx+".mp3"); });
     shelf.appendChild(b);
   });
 }
@@ -602,7 +589,7 @@ document.getElementById("openSurprise").addEventListener("click",()=>{
   dollBase=d.base; dollName=d.name;
   localStorage.setItem("roseDollBase",dollBase); localStorage.setItem("roseDollName",dollName);
   applyDoll(); renderSurprise();
-  speak("Surprise! You got "+(isNew?"a new doll! ":"a twin doll! ")+d.name+"! She is on your stage now. Dress her up!");
+  playClip("audio/surprise_"+(isNew?"new_":"twin_")+idx+".mp3");
 });
 renderSurprise();
 
