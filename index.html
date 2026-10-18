@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#ff8fb8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Phonics Slimes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Rose's Phonics Slimes — Learn to Read &amp; Spell</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin:0; font-family: "Comic Sans MS", "Chalkboard SE", system-ui, sans-serif; background:#fff5f9; color:#402b3a; }
+  header { background:linear-gradient(135deg,#ffd6e8,#c5f0d3); padding:14px 12px; text-align:center; position:sticky; top:0; z-index:5; box-shadow:0 2px 8px rgba(0,0,0,.12);}
+  header h1 { margin:0; font-size:1.55rem; }
+  header p { margin:4px 0 0; font-size:.95rem; }
+  #stars { font-size:1.2rem; }
+  nav { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; padding:12px 8px 0; }
+  nav button { font-size:1.05rem; padding:12px 14px; border:none; border-radius:999px; background:#fff; box-shadow:0 2px 6px rgba(0,0,0,.15); cursor:pointer; font-family:inherit; }
+  nav button.active { background:#ff8fb8; color:#fff; }
+  section { display:none; padding:16px 12px 40px; max-width:680px; margin:0 auto; text-align:center; }
+  section.show { display:block; }
+  .bigbtn { font-size:1.15rem; padding:14px 22px; border:none; border-radius:999px; background:#7bd88f; color:#173d21; font-family:inherit; cursor:pointer; box-shadow:0 3px 8px rgba(0,0,0,.18); margin:6px; }
+  .bigbtn.pink { background:#ff8fb8; color:#fff; }
+  .bigbtn.blue { background:#8fc9ff; color:#12324f; }
+  .bigbtn:disabled { opacity:.45; }
+  .slimes, .tiles { display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin:16px 0; }
+  .slime { width:92px; height:92px; border-radius:50% 50% 46% 46%; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:2rem; font-weight:bold; color:#fff; cursor:pointer; border:none; box-shadow:inset -6px -8px 0 rgba(0,0,0,.08), 0 3px 6px rgba(0,0,0,.15); font-family:inherit; }
+  .slime small { font-size:.72rem; font-weight:normal; }
+  .slime.bounce { animation:b .45s ease; }
+  @keyframes b { 30%{transform:translateY(-14px) scale(1.06);} }
+  .wordbig { font-size:3rem; letter-spacing:.18em; margin:10px 0; font-weight:bold; }
+  .wordbig .ing { color:#e5437e; }
+  .emoji-scene { font-size:3.4rem; margin:8px 0; }
+  canvas.draw { background:#fff; border:4px dashed #ff8fb8; border-radius:18px; touch-action:none; width:300px; height:300px; max-width:88vw; }
+  .ghostwrap { position:relative; width:300px; height:300px; max-width:88vw; margin:0 auto; }
+  .ghost { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:15rem; color:#ffe0ec; pointer-events:none; font-weight:bold; line-height:1; }
+  .ghostwrap canvas { position:relative; }
+  #kb { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; max-width:560px; margin:12px auto; }
+  #kb button { width:52px; height:56px; font-size:1.4rem; border-radius:12px; border:none; background:#fff; box-shadow:0 2px 5px rgba(0,0,0,.15); font-family:inherit; cursor:pointer; }
+  #typed { font-size:2.6rem; letter-spacing:.25em; min-height:3.4rem; background:#fff; border-radius:14px; padding:6px; margin:10px auto; max-width:420px; }
+  .slots { display:flex; gap:8px; justify-content:center; margin:10px 0; flex-wrap:wrap; }
+  .slot { width:78px; height:78px; background:#fff; border-radius:12px; border:3px solid #ffd6e8; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  .slot img { width:100%; height:100%; object-fit:contain; }
+  .sentence { font-size:1.9rem; line-height:1.7; background:#fff; border-radius:16px; padding:14px; margin:10px 0; }
+  .sentence .w { cursor:pointer; padding:2px 6px; border-radius:8px; background:#fef3c7; }
+  .card { background:#fff; border-radius:18px; padding:16px 12px; margin:12px 0; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+  .hint { font-size:.98rem; color:#6b5462; }
+  select { font-size:1.1rem; padding:10px; border-radius:12px; font-family:inherit; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:10px 0; }
+  .chip { font-size:1.15rem; padding:10px 14px; border:none; border-radius:999px; background:#eef7ff; box-shadow:0 2px 5px rgba(0,0,0,.12); font-family:inherit; cursor:pointer; }
+  .famend { color:#e5437e; font-weight:bold; }
+  #outfitBanner { display:none; background:#fff3b0; border:3px solid #ffc65c; border-radius:16px; padding:12px; margin:12px auto; max-width:600px; font-size:1.15rem; }
+  #dollStage { position:relative; width:300px; height:320px; margin:10px auto; background:linear-gradient(#eaf7ff,#ffeef6); border-radius:22px; overflow:hidden; }
+  #dollBase { position:absolute; left:50%; top:46%; transform:translate(-50%,-50%); font-size:9.5rem; }
+  .wornItem { position:absolute; font-size:3.6rem; transform:translate(-50%,-50%); pointer-events:none; }
+  .pos-top { left:50%; top:9%; } .pos-face { left:50%; top:27%; font-size:2.7rem; }
+  .pos-neck { left:50%; top:47%; font-size:2.7rem; } .pos-body { left:50%; top:60%; font-size:4.4rem; }
+  .pos-feet { left:50%; top:92%; font-size:2.6rem; } .pos-side { left:84%; top:55%; }
+  .pos-hand { left:16%; top:58%; }
+  #wardrobe { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:14px 0; }
+  .outfitBtn { width:96px; padding:10px 4px; border-radius:16px; border:3px solid #eee; background:#fff; font-family:inherit; font-size:.9rem; cursor:pointer; }
+  .outfitBtn .oe { font-size:2.2rem; display:block; }
+  .outfitBtn.locked { opacity:.55; cursor:default; }
+  .outfitBtn.worn { border-color:#ff8fb8; background:#fff0f6; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🌸 Rose's Phonics Slimes 📚</h1>
+  <p>Tap, listen, draw, type — learn to read &amp; spell!</p>
+  <div id="stars">⭐ <span id="starCount">0</span></div>
+  <p><button id="installBtn" onclick="installApp()" style="display:none;font-size:1rem;padding:10px 18px;border:none;border-radius:999px;background:#ff8fb8;color:#fff;font-family:inherit;cursor:pointer">📱 Install this app</button></p>
+</header>
+
+<nav>
+  <button data-sec="sounds" class="active">🔊 Sounds</button>
+  <button data-sec="trace">✏️ Draw It</button>
+  <button data-sec="blend">🫧 Blend It</button>
+  <button data-sec="spell">⌨️ Spell It</button>
+  <button data-sec="likes">🎤 She Likes…</button>
+  <button data-sec="story">📖 Story</button>
+  <button data-sec="dressup">👗 Dress-Up</button>
+</nav>
+<div id="outfitBanner"></div>
+
+<!-- SOUNDS: listening/exploring, not a quiz -->
+<section id="sounds" class="show">
+  <h2>Tap a slime. Hear its sound!</h2>
+  <p class="hint">These slimes say their <b>sound</b>, not their name.</p>
+  <p><button class="bigbtn pink" id="testSound">🔊 Test the sound!</button></p>
+  <div class="slimes" id="soundSlimes"></div>
+</section>
+
+<!-- TRACE / DRAW -->
+<section id="trace">
+  <h2>Draw the letter!</h2>
+  <p class="hint">Hear the sound, then draw it with your finger.<br>First trace it… then the helper fades… then draw it all by yourself!</p>
+  <div>
+    <label>Letter: <select id="traceLetter"></select></label>
+    <label>Helper: <select id="traceLevel">
+      <option value="ghost">Trace the big letter</option>
+      <option value="dot">Just a starting dot</option>
+      <option value="blank">All by myself!</option>
+    </select></label>
+  </div>
+  <p><button class="bigbtn blue" id="hearTrace">🔊 Hear the sound</button></p>
+  <div class="ghostwrap">
+    <div class="ghost" id="ghostLetter">s</div>
+    <canvas class="draw" id="traceCanvas" width="300" height="300"></canvas>
+  </div>
+  <p>
+    <button class="bigbtn" id="clearTrace">🧽 Clear</button>
+    <button class="bigbtn pink" id="didTrace">I did it! ⭐</button>
+  </p>
+</section>
+
+<!-- BLEND -->
+<section id="blend">
+  <h2>Blend the sounds!</h2>
+  <div class="emoji-scene" id="blendEmoji">🐱</div>
+  <div class="slimes" id="blendSlimes"></div>
+  <p>
+    <button class="bigbtn blue" id="blendBtn">🫧 Blend it together!</button>
+    <button class="bigbtn" id="nextBlend">Next word ➡️</button>
+  </p>
+  <div class="wordbig" id="blendWord" style="visibility:hidden"></div>
+</section>
+
+<!-- SPELL: draw it OR type it — NO letter tiles to guess with -->
+<section id="spell">
+  <h2>Spell the word!</h2>
+  <p class="hint">Listen to the word. Sound it out in your head.<br><b>No letter squares to guess with</b> — you make the letters yourself!</p>
+  <div class="emoji-scene" id="spellEmoji">🐱</div>
+  <p>
+    <button class="bigbtn blue" id="hearSpell">🔊 Hear the word</button>
+    <button class="bigbtn blue" id="soundSpell">🐌 Sound it out slowly</button>
+  </p>
+  <div class="card">
+    <h3>✏️ Draw each letter</h3>
+    <p class="hint" id="drawPrompt">Draw letter 1, then tap Next letter.</p>
+    <div class="ghostwrap">
+      <div class="ghost" id="spellGhost" style="font-size:15rem"></div>
+      <canvas class="draw" id="spellCanvas" width="300" height="300"></canvas>
+    </div>
+    <p>
+      <button class="bigbtn" id="clearSpell">🧽 Clear</button>
+      <button class="bigbtn pink" id="nextLetter">Next letter ➡️</button>
+      <button class="bigbtn" id="showSpell">Show me the word 👀</button>
+    </p>
+    <div class="slots" id="spellSlots"></div>
+    <div class="wordbig" id="spellAnswer" style="visibility:hidden"></div>
+  </div>
+  <div class="card">
+    <h3>⌨️ Or type it</h3>
+    <div id="typed"></div>
+    <div id="kb"></div>
+    <p>
+      <button class="bigbtn" id="backTyped">⌫ Erase</button>
+      <button class="bigbtn pink" id="doneTyped">Done! ⭐</button>
+    </p>
+    <p class="hint" id="typeMsg"></p>
+  </div>
+  <p><button class="bigbtn" id="nextSpell">New word 🎲</button></p>
+</section>
+
+<!-- SHE LIKES ___ING -->
+<section id="likes">
+  <h2>She likes… and lots more!</h2>
+  <p class="hint">Tap a picture. Hear the sentence! See how every action word ends in <b style="color:#e5437e">ing</b>? Then try all the other patterns below — <b>She can…</b>, <b>She has a…</b>, <b>I see a…</b>, and word families with the same ending.</p>
+  <div id="likesCards"></div>
+  <h2>More sentence patterns</h2>
+  <div id="patternCards"></div>
+  <h2>Word families — same ending!</h2>
+  <p class="hint">Words that end the same sound the same at the end. Change the first sound and you can read a whole family!</p>
+  <div id="familyCards"></div>
+</section>
+
+<!-- DRESS-UP: customizable people, outfits + surprise dolls EARNED by finishing lessons -->
+<section id="dressup">
+  <h2>Dress-Up Studio! 👗</h2>
+  <p class="hint">Make the person yours! Pick who she is, her hair, her name, and her room color.<br>Finish lessons to earn outfit pieces ⭐ — and every 4 stars earns a <b>Surprise Doll</b> to open! 🎁</p>
+  <div class="card">
+    <h3>✨ Make your person</h3>
+    <p class="hint">Who is she?</p>
+    <div class="chips" id="basePicker"></div>
+    <p class="hint">Her name:</p>
+    <div class="chips" id="namePicker"></div>
+    <p class="hint">Room color:</p>
+    <div class="chips" id="bgPicker"></div>
+  </div>
+  <h3 id="dollNameLabel">⭐ Mira ⭐</h3>
+  <div id="dollStage">
+    <div id="dollBase">👧</div>
+    <div id="wornLayer"></div>
+  </div>
+  <p id="dressMsg" class="hint"></p>
+  <div id="wardrobe"></div>
+  <p><button class="bigbtn" id="takeOffAll">Take everything off 🔄</button></p>
+  <div class="card">
+    <h3>🎁 Surprise Dolls!</h3>
+    <p class="hint" id="ballCount">Surprise balls: 0</p>
+    <div class="emoji-scene" id="surpriseBall" style="font-size:4.5rem">🎁</div>
+    <p><button class="bigbtn pink" id="openSurprise">Open a surprise! 🎉</button></p>
+    <div id="surpriseReveal"></div>
+    <h4>My dolls shelf</h4>
+    <div class="chips" id="dollShelf"><span class="hint">No surprise dolls yet — finish lessons to earn one!</span></div>
+  </div>
+</section>
+
+<!-- STORY -->
+<section id="story">
+  <h2>The Sad Little Slime</h2>
+  <p class="hint">Tap any word to sound it out. Tap 🔊 to hear the whole sentence.</p>
+  <div id="storyPages"></div>
+</section>
+
+<script>
+const PHON = {s:"sss",a:"ah",t:"t",p:"p",i:"ih",n:"nnn",m:"mmm",d:"d",c:"k",g:"g",o:"oh",e:"eh",r:"rrr",u:"uh",b:"b",f:"fff",l:"lll",h:"hhh",w:"wuh",v:"vvv",k:"k",j:"j",y:"y",z:"zzz",x:"ks",q:"kw"};
+const EXAMPLE = {s:"snake 🐍",a:"apple 🍎",t:"tap 👆",p:"pig 🐷",i:"igloo 🧊",n:"nose 👃",m:"moon 🌙",d:"dad 👨"};
+const SET1 = ["s","a","t","p","i","n","m","d"];
+const COLORS = ["#8fc9ff","#ff8fb8","#7bd88f","#ffc65c","#c39bff","#ff9d76","#6fd3d3","#f78fb3"];
+let stars = parseInt(localStorage.getItem("roseStars")||"0",10);
+function showStars(){ document.getElementById("starCount").textContent = stars; }
+function addStar(){ stars++; localStorage.setItem("roseStars",stars); showStars(); if(typeof checkOutfits==="function") checkOutfits(true); }
+showStars();
+
+function speak(text, opt){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = (opt&&opt.rate)||0.85; u.pitch = (opt&&opt.pitch)||1.1;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function speakSlow(parts, whole){
+  speechSynthesis.cancel();
+  let delay = 0;
+  parts.forEach(p=>{ setTimeout(()=>speak(p,{rate:0.6}), delay); delay += 750; });
+  if(whole) setTimeout(()=>speak(whole,{rate:0.8}), delay+200);
+}
+function bounce(el){ el.classList.remove("bounce"); void el.offsetWidth; el.classList.add("bounce"); }
+
+/* REAL AUDIO: baked-in MP3 clips (Aria's voice) play everywhere — the device speech
+   engine is only a backup, because it is silent in some app previews/webviews. */
+const audioEl = new Audio();
+function playClip(src, fb, onend){
+  try{
+    audioEl.pause();
+    audioEl.onerror = ()=>{ if(fb) speak(fb); };
+    audioEl.src = src;
+    if(onend){ audioEl.onended = ()=>{ audioEl.onended=null; onend(); }; } else audioEl.onended = null;
+    const p = audioEl.play();
+    if(p) p.catch(()=>{ if(fb) speak(fb); });
+  }catch(e){ if(fb) speak(fb); }
+}
+
+/* nav */
+document.querySelectorAll("nav button").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll("section").forEach(x=>x.classList.remove("show"));
+    b.classList.add("active");
+    document.getElementById(b.dataset.sec).classList.add("show");
+    speak(b.textContent.replace(/[^a-zA-Z ]/g,"").trim());
+  });
+});
+
+/* SOUNDS */
+const ss = document.getElementById("soundSlimes");
+SET1.forEach((L,i)=>{
+  const btn=document.createElement("button");
+  btn.className="slime"; btn.style.background=COLORS[i%COLORS.length];
+  btn.innerHTML = L + "<small>"+(EXAMPLE[L]||"")+"</small>";
+  btn.addEventListener("click",()=>{ bounce(btn); playClip("audio/letter_"+L+".mp3", PHON[L]+". "+L+" is for "+(EXAMPLE[L]||L)); });
+  ss.appendChild(btn);
+});
+document.getElementById("testSound").addEventListener("click",()=>playClip("audio/test_sound.mp3","Hello Rose! Tap a slime and I will say its sound!"));
+
+/* drawing helper */
+function makeDrawable(canvas){
+  const ctx = canvas.getContext("2d");
+  ctx.lineWidth = 14; ctx.lineCap="round"; ctx.lineJoin="round"; ctx.strokeStyle="#e5437e";
+  let down=false,last=null;
+  function pos(e){ const r=canvas.getBoundingClientRect(); const t=e.touches?e.touches[0]:e; return {x:(t.clientX-r.left)*(canvas.width/r.width), y:(t.clientY-r.top)*(canvas.height/r.height)}; }
+  function start(e){ down=true; last=pos(e); e.preventDefault(); }
+  function move(e){ if(!down) return; const p=pos(e); ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; e.preventDefault(); }
+  function end(){ down=false; }
+  canvas.addEventListener("pointerdown",start); canvas.addEventListener("pointermove",move);
+  window.addEventListener("pointerup",end);
+  canvas.addEventListener("touchstart",start,{passive:false}); canvas.addEventListener("touchmove",move,{passive:false});
+  return { clear(){ ctx.clearRect(0,0,canvas.width,canvas.height); }, snapshot(){ return canvas.toDataURL(); } };
+}
+const traceDraw = makeDrawable(document.getElementById("traceCanvas"));
+const spellDraw = makeDrawable(document.getElementById("spellCanvas"));
+
+/* TRACE */
+const traceSel = document.getElementById("traceLetter");
+SET1.forEach(L=>{ const o=document.createElement("option"); o.value=L; o.textContent=L+"  ("+(EXAMPLE[L]||"")+")"; traceSel.appendChild(o); });
+function updateGhost(){
+  const L = traceSel.value, lvl = document.getElementById("traceLevel").value, g = document.getElementById("ghostLetter");
+  g.textContent = lvl==="ghost" ? L : (lvl==="dot" ? "•" : "");
+  document.getElementById("spellGhost").textContent = "";
+}
+traceSel.addEventListener("change",()=>{ updateGhost(); traceDraw.clear(); });
+document.getElementById("traceLevel").addEventListener("change",()=>{ updateGhost(); traceDraw.clear(); });
+document.getElementById("hearTrace").addEventListener("click",()=>playClip("audio/letter_"+traceSel.value+".mp3", PHON[traceSel.value]+". "+traceSel.value+" is for "+(EXAMPLE[traceSel.value]||"")));
+document.getElementById("clearTrace").addEventListener("click",()=>traceDraw.clear());
+document.getElementById("didTrace").addEventListener("click",()=>{ addStar(); speak("You did it! You drew the letter "+traceSel.value+"! Star for you!"); });
+updateGhost();
+
+/* BLEND */
+const BLEND = [
+  {w:"sat",e:"🪑"},{w:"pat",e:"👋"},{w:"tap",e:"👆"},{w:"pin",e:"📌"},{w:"nap",e:"😴"},
+  {w:"man",e:"👨"},{w:"map",e:"🗺️"},{w:"sit",e:"🪑"},{w:"dad",e:"👨‍👧"},{w:"mad",e:"😠"},
+  {w:"cat",e:"🐱"},{w:"pig",e:"🐷"},{w:"dog",e:"🐶"},{w:"sun",e:"☀️"}
+];
+let bi = 0;
+function showBlend(){
+  const item = BLEND[bi];
+  document.getElementById("blendEmoji").textContent = item.e;
+  document.getElementById("blendWord").style.visibility="hidden";
+  document.getElementById("blendWord").textContent = item.w;
+  const wrap = document.getElementById("blendSlimes"); wrap.innerHTML="";
+  item.w.split("").forEach((L,i)=>{
+    const btn=document.createElement("button");
+    btn.className="slime"; btn.style.background=COLORS[(SET1.indexOf(L)+i+8)%COLORS.length]||COLORS[i];
+    btn.textContent=L;
+    btn.addEventListener("click",()=>{ bounce(btn); playClip("audio/letter_"+L+".mp3", PHON[L]||L); });
+    wrap.appendChild(btn);
+  });
+  speak("Tap each slime. Then blend it!");
+}
+document.getElementById("blendBtn").addEventListener("click",()=>{
+  const item = BLEND[bi];
+  playClip("audio/word_"+item.w+".mp3", item.w);
+  document.getElementById("blendWord").style.visibility="visible";
+  addStar();
+});
+document.getElementById("nextBlend").addEventListener("click",()=>{ bi=(bi+1)%BLEND.length; showBlend(); });
+showBlend();
+
+/* SPELL — draw or type, NO tiles */
+const SPELL = BLEND.slice();
+let si = 0, letterIdx = 0, drawn = [];
+function showSpell(){
+  const item = SPELL[si];
+  letterIdx = 0; drawn = [];
+  document.getElementById("spellEmoji").textContent = item.e;
+  document.getElementById("spellAnswer").style.visibility="hidden";
+  document.getElementById("spellAnswer").textContent = item.w;
+  document.getElementById("typed").textContent = "";
+  document.getElementById("typeMsg").textContent = "";
+  const slots = document.getElementById("spellSlots"); slots.innerHTML="";
+  item.w.split("").forEach(()=>{ const d=document.createElement("div"); d.className="slot"; slots.appendChild(d); });
+  spellDraw.clear(); updateDrawPrompt();
+  speak("Spell this word. Tap hear the word if you need it again.");
+}
+function updateDrawPrompt(){
+  const item = SPELL[si];
+  document.getElementById("drawPrompt").textContent =
+    letterIdx < item.w.length ? ("Draw letter "+(letterIdx+1)+" of "+item.w.length+". What sound do you hear?") : "All done! Tap Show me the word and check your letters!";
+  document.getElementById("spellGhost").textContent = "";
+}
+document.getElementById("hearSpell").addEventListener("click",()=>playClip("audio/word_"+SPELL[si].w+".mp3", SPELL[si].w));
+document.getElementById("soundSpell").addEventListener("click",()=>playClip("audio/word_"+SPELL[si].w+".mp3", SPELL[si].w));
+document.getElementById("clearSpell").addEventListener("click",()=>spellDraw.clear());
+document.getElementById("nextLetter").addEventListener("click",()=>{
+  const item = SPELL[si]; if(letterIdx>=item.w.length) return;
+  const slots = document.getElementById("spellSlots").children;
+  const img = document.createElement("img"); img.src = spellDraw.snapshot(); img.alt="Rose's letter";
+  slots[letterIdx].innerHTML=""; slots[letterIdx].appendChild(img);
+  drawn.push(true); letterIdx++; spellDraw.clear(); updateDrawPrompt();
+  speak(letterIdx<item.w.length ? "Good! Next letter." : "Finished! Check your word!");
+});
+document.getElementById("showSpell").addEventListener("click",()=>{
+  document.getElementById("spellAnswer").style.visibility="visible";
+  speak("The word is "+SPELL[si].w.split("").join(", ")+". "+SPELL[si].w+". Did your letters match? Great spelling, Rose!");
+  addStar();
+});
+/* typing: plain full keyboard, nothing highlighted, whole-word check only */
+const kb = document.getElementById("kb");
+"abcdefghijklmnopqrstuvwxyz".split("").forEach(L=>{
+  const b=document.createElement("button"); b.textContent=L;
+  b.addEventListener("click",()=>{ const t=document.getElementById("typed"); if(t.textContent.length<10) t.textContent+=L; playClip("audio/letter_"+L+".mp3", PHON[L]||L); });
+  kb.appendChild(b);
+});
+document.getElementById("backTyped").addEventListener("click",()=>{ const t=document.getElementById("typed"); t.textContent=t.textContent.slice(0,-1); });
+document.getElementById("doneTyped").addEventListener("click",()=>{
+  const t=document.getElementById("typed").textContent.trim().toLowerCase(), target=SPELL[si].w, msg=document.getElementById("typeMsg");
+  if(t===target){ msg.textContent="⭐ YES! You spelled "+target+"!"; speak("Yes! You spelled "+target+"! Star for you!"); addStar(); }
+  else { msg.textContent="Listen and try the whole word again — you can do it!"; speakSlow(target.split("").map(L=>PHON[L]||L), target); document.getElementById("typed").textContent=""; }
+});
+document.getElementById("nextSpell").addEventListener("click",()=>{ si=(si+1)%SPELL.length; showSpell(); });
+showSpell();
+
+/* SHE LIKES ___ING */
+const LIKES = [
+  {base:"sing", word:"singing", e:"👧🎤", note:"A girl singing!"},
+  {base:"read", word:"reading", e:"👧📖", note:"Reading a book!"},
+  {base:"danc", word:"dancing", e:"👧💃", note:"Dancing and twirling!"},
+  {base:"paint", word:"painting", e:"👧🎨", note:"Painting a picture!"},
+  {base:"swim", word:"swimming", e:"👧🏊", note:"Swimming in the water!"},
+  {base:"play", word:"playing", e:"👧🧸", note:"Playing with toys!"},
+  {base:"jump", word:"jumping", e:"👧🤸", note:"Jumping up high!"},
+  {base:"cook", word:"cooking", e:"👧🧁", note:"Cooking something yummy!"},
+  {base:"run", word:"running", e:"👧🏃", note:"Running fast!"},
+  {base:"sleep", word:"sleeping", e:"👧😴", note:"Sleeping and dreaming!"}
+];
+const lc = document.getElementById("likesCards");
+LIKES.forEach(it=>{
+  const card=document.createElement("div"); card.className="card";
+  card.innerHTML = '<div class="emoji-scene">'+it.e+'</div><div class="sentence">She likes <b>'+it.base+'<span class="ing">ing</span></b>.</div><p class="hint">'+it.note+' The word is '+it.base+' + <b style="color:#e5437e">ing</b></p>';
+  const hear=document.createElement("button"); hear.className="bigbtn blue"; hear.textContent="🔊 Hear the sentence";
+  hear.addEventListener("click",()=>playClip("audio/likes_"+it.word+".mp3", "She likes "+it.word+"."));
+  const spell=document.createElement("button"); spell.className="bigbtn pink"; spell.textContent="🐌 Sound out "+it.word;
+  spell.addEventListener("click",()=>playClip("audio/likes_"+it.word+".mp3", it.word));
+  card.appendChild(hear); card.appendChild(spell); lc.appendChild(card);
+});
+
+/* MORE PATTERNS — not just -ing! */
+const PATTERNS = [
+  {pre:"can", title:"She can ___!", make:w=>"She can "+w+".", words:[["sing","🎤"],["dance","💃"],["read","📖"],["swim","🏊"],["jump","🤸"],["paint","🎨"],["run","🏃"],["nap","😴"]]},
+  {pre:"has", title:"She has a ___", make:w=>"She has a "+w+".", words:[["hat","👒"],["cat","🐱"],["doll","🪆"],["slime","🟢"],["map","🗺️"],["crown","👑"]]},
+  {pre:"see", title:"I see a ___", make:w=>"I see a "+w+".", words:[["pig","🐷"],["dog","🐶"],["sun","☀️"],["bug","🐛"],["fish","🐟"],["star","⭐"]]},
+  {pre:"is", title:"The slime is ___", make:w=>"The slime is "+w+".", words:[["big","🦣"],["pink","🩷"],["sad","😢"],["happy","😊"],["mad","😠"],["tiny","🤏"]]}
+];
+const pc = document.getElementById("patternCards");
+PATTERNS.forEach(p=>{
+  const card=document.createElement("div"); card.className="card";
+  const h=document.createElement("h3"); h.textContent=p.title; card.appendChild(h);
+  const chips=document.createElement("div"); chips.className="chips";
+  p.words.forEach(([w,e])=>{
+    const b=document.createElement("button"); b.className="chip"; b.textContent=e+" "+w;
+    b.addEventListener("click",()=>{ playClip("audio/pattern_"+p.pre+"_"+w+".mp3", p.make(w)); });
+    chips.appendChild(b);
+  });
+  card.appendChild(chips); pc.appendChild(card);
+});
+
+/* WORD FAMILIES */
+const FAMILIES = [
+  {end:"at", words:["cat","sat","pat","hat","mat"]},
+  {end:"an", words:["man","can","pan","ran","fan"]},
+  {end:"in", words:["pin","win","tin","fin"]},
+  {end:"ip", words:["sip","tip","dip","lip"]},
+  {end:"op", words:["top","mop","hop","pop"]},
+  {end:"ug", words:["bug","hug","rug","mug"]},
+  {end:"un", words:["sun","run","fun","bun"]}
+];
+const fc = document.getElementById("familyCards");
+FAMILIES.forEach(f=>{
+  const card=document.createElement("div"); card.className="card";
+  const h=document.createElement("h3"); h.innerHTML="— <span class='famend'>"+f.end+"</span> family"; card.appendChild(h);
+  const chips=document.createElement("div"); chips.className="chips";
+  f.words.forEach(w=>{
+    const b=document.createElement("button"); b.className="chip";
+    b.innerHTML = w.slice(0,w.length-f.end.length)+"<span class='famend'>"+f.end+"</span>";
+    b.addEventListener("click",()=>playClip("audio/word_"+w+".mp3", w));
+    chips.appendChild(b);
+  });
+  card.appendChild(chips); fc.appendChild(card);
+});
+
+/* DRESS-UP MIRA — outfit pieces earned with stars from finished lessons */
+const OUTFITS = [
+  {e:"🎀", name:"Pink bow", pos:"pos-top", need:1},
+  {e:"👒", name:"Sun hat", pos:"pos-top", need:3},
+  {e:"🕶️", name:"Sunglasses", pos:"pos-face", need:5},
+  {e:"👗", name:"Pink dress", pos:"pos-body", need:8},
+  {e:"🦋", name:"Butterfly wings", pos:"pos-side", need:11},
+  {e:"👢", name:"Boots", pos:"pos-feet", need:14},
+  {e:"🧣", name:"Cozy scarf", pos:"pos-neck", need:18},
+  {e:"👑", name:"Crown", pos:"pos-top", need:22},
+  {e:"🎒", name:"Backpack", pos:"pos-side", need:26},
+  {e:"🌺", name:"Flower necklace", pos:"pos-neck", need:30},
+  {e:"👠", name:"Sparkly shoes", pos:"pos-feet", need:35},
+  {e:"🪄", name:"Magic wand", pos:"pos-hand", need:40}
+];
+let worn = [];
+try{ worn = JSON.parse(localStorage.getItem("roseWorn")||"[]"); }catch(e){ worn=[]; }
+let knownUnlocked = OUTFITS.filter(o=>stars>=o.need).length;
+function renderWardrobe(){
+  const layer=document.getElementById("wornLayer"); layer.innerHTML="";
+  worn.forEach(idx=>{
+    const o=OUTFITS[idx]; const s=document.createElement("span");
+    s.className="wornItem "+o.pos; s.textContent=o.e; layer.appendChild(s);
+  });
+  const w=document.getElementById("wardrobe"); w.innerHTML="";
+  OUTFITS.forEach((o,idx)=>{
+    const unlocked = stars>=o.need;
+    const b=document.createElement("button");
+    b.className="outfitBtn"+(unlocked?"":" locked")+(worn.includes(idx)?" worn":"");
+    b.innerHTML="<span class='oe'>"+(unlocked?o.e:"🔒")+"</span>"+(unlocked?o.name:("⭐ "+o.need+" stars"));
+    if(unlocked) b.addEventListener("click",()=>{
+      if(worn.includes(idx)) worn = worn.filter(x=>x!==idx);
+      else { worn = worn.filter(x=>OUTFITS[x].pos!==o.pos); worn.push(idx); speak("Mira is wearing the "+o.name+"! She looks lovely!"); }
+      localStorage.setItem("roseWorn",JSON.stringify(worn)); renderWardrobe();
+    });
+    w.appendChild(b);
+  });
+  const next = OUTFITS.find(o=>stars<o.need);
+  document.getElementById("dressMsg").textContent = next ?
+    ("Next outfit: "+next.e+" "+next.name+" — earn "+(next.need-stars)+" more ⭐ by finishing lessons!") :
+    "You unlocked EVERY outfit! Mira is the best-dressed doll ever! 🎉";
+}
+function checkOutfits(announce){
+  const now = OUTFITS.filter(o=>stars>=o.need).length;
+  if(now>knownUnlocked){
+    const item = OUTFITS[now-1];
+    const banner=document.getElementById("outfitBanner");
+    banner.style.display="block";
+    banner.textContent="🎉 You finished lessons and earned a new outfit for Mira: "+item.e+" "+item.name+"! Go to Dress-Up to put it on her!";
+    setTimeout(()=>speak("You earned a new outfit for Mira! The "+item.name+"! Go dress her up!"), 2600);
+  }
+  knownUnlocked = now; renderWardrobe();
+  if(typeof renderSurprise==="function") renderSurprise();
+}
+document.getElementById("takeOffAll").addEventListener("click",()=>{ worn=[]; localStorage.setItem("roseWorn","[]"); renderWardrobe(); });
+renderWardrobe();
+
+/* CUSTOMIZABLE PEOPLE */
+const BASES = ["👧","👧🏻","👧🏼","👧🏽","👧🏾","👧🏿","👱‍♀️","👩‍🦰","👩‍🦱","👸"];
+const NAMES = ["Mira","Lily","Zoe","Rose","Rumi"];
+const BGS = [["🩷 Pink","linear-gradient(#ffe3f0,#ffffff)"],["💚 Mint","linear-gradient(#d9f7e3,#ffffff)"],["💜 Lilac","linear-gradient(#eadcff,#ffffff)"],["💛 Sunny","linear-gradient(#fff3b0,#ffffff)"],["🩵 Sky","linear-gradient(#d6efff,#ffffff)"]];
+let dollBase = localStorage.getItem("roseDollBase")||"👧";
+let dollName = localStorage.getItem("roseDollName")||"Mira";
+let dollBg = localStorage.getItem("roseDollBg")||BGS[0][1];
+function applyDoll(){
+  document.getElementById("dollBase").textContent = dollBase;
+  document.getElementById("dollStage").style.background = dollBg;
+  document.getElementById("dollNameLabel").textContent = "⭐ "+dollName+" ⭐";
+  document.querySelectorAll("#basePicker .chip").forEach(c=>c.style.outline = c.dataset.v===dollBase ? "3px solid #e5437e" : "none");
+  document.querySelectorAll("#namePicker .chip").forEach(c=>c.style.outline = c.dataset.v===dollName ? "3px solid #e5437e" : "none");
+}
+const bp=document.getElementById("basePicker");
+BASES.forEach(b=>{ const btn=document.createElement("button"); btn.className="chip"; btn.dataset.v=b; btn.style.fontSize="1.8rem"; btn.textContent=b;
+  btn.addEventListener("click",()=>{ dollBase=b; localStorage.setItem("roseDollBase",b); applyDoll(); speak("Pretty!"); }); bp.appendChild(btn); });
+const np=document.getElementById("namePicker");
+NAMES.forEach(n=>{ const btn=document.createElement("button"); btn.className="chip"; btn.dataset.v=n; btn.textContent=n;
+  btn.addEventListener("click",()=>{ dollName=n; localStorage.setItem("roseDollName",n); applyDoll(); speak("Her name is "+n+"!"); }); np.appendChild(btn); });
+const gp=document.getElementById("bgPicker");
+BGS.forEach(([label,css])=>{ const btn=document.createElement("button"); btn.className="chip"; btn.textContent=label;
+  btn.addEventListener("click",()=>{ dollBg=css; localStorage.setItem("roseDollBg",css); applyDoll(); }); gp.appendChild(btn); });
+applyDoll();
+
+/* SURPRISE DOLLS — random reveal, earned with stars (generic surprise dolls, our own characters) */
+const SURPRISE_DOLLS = [
+  {name:"Star Singer", base:"👧", acc:"🎤"},
+  {name:"Rainbow Painter", base:"👧🏽", acc:"🎨"},
+  {name:"Ballerina Twirl", base:"👧🏼", acc:"🩰"},
+  {name:"Doctor Helper", base:"👧🏾", acc:"🩺"},
+  {name:"Chef Cupcake", base:"👧🏻", acc:"🧁"},
+  {name:"Astronaut Nova", base:"👧🏿", acc:"🚀"},
+  {name:"Mermaid Pearl", base:"👩‍🦰", acc:"🐚"},
+  {name:"Fairy Blossom", base:"👧🏼", acc:"🌸"},
+  {name:"Skater Zoom", base:"👧", acc:"🛼"},
+  {name:"Puppy Pal", base:"👧🏽", acc:"🐶"}
+];
+let surpriseOpened = parseInt(localStorage.getItem("roseSurpriseOpened")||"0",10);
+let myDolls = [];
+try{ myDolls = JSON.parse(localStorage.getItem("roseDolls")||"[]"); }catch(e){ myDolls=[]; }
+function ballsAvailable(){ return Math.max(0, Math.floor(stars/4) - surpriseOpened); }
+function renderSurprise(){
+  const balls = ballsAvailable();
+  document.getElementById("ballCount").textContent = balls>0 ?
+    ("You have "+balls+" surprise ball"+(balls===1?"":"s")+" to open!") :
+    ("Finish lessons! "+(4-(stars%4))+" more ⭐ earns your next surprise ball.");
+  document.getElementById("openSurprise").disabled = balls<1;
+  document.getElementById("surpriseBall").textContent = balls>0 ? "🎁" : "🔒";
+  const shelf=document.getElementById("dollShelf"); shelf.innerHTML="";
+  if(!myDolls.length){ shelf.innerHTML="<span class='hint'>No surprise dolls yet — finish lessons to earn one!</span>"; return; }
+  myDolls.forEach(idx=>{
+    const d=SURPRISE_DOLLS[idx];
+    const b=document.createElement("button"); b.className="chip"; b.textContent=d.base+" "+d.acc+" "+d.name;
+    b.addEventListener("click",()=>{ dollBase=d.base; dollName=d.name; localStorage.setItem("roseDollBase",dollBase); localStorage.setItem("roseDollName",dollName); applyDoll(); speak("Here is "+d.name+"! Dress her up!"); });
+    shelf.appendChild(b);
+  });
+}
+document.getElementById("openSurprise").addEventListener("click",()=>{
+  if(ballsAvailable()<1) return;
+  surpriseOpened++; localStorage.setItem("roseSurpriseOpened",surpriseOpened);
+  const remaining = SURPRISE_DOLLS.map((d,i)=>i).filter(i=>!myDolls.includes(i));
+  const isNew = remaining.length>0;
+  const idx = isNew ? remaining[Math.floor(Math.random()*remaining.length)] : Math.floor(Math.random()*SURPRISE_DOLLS.length);
+  if(isNew) myDolls.push(idx);
+  localStorage.setItem("roseDolls",JSON.stringify(myDolls));
+  const d=SURPRISE_DOLLS[idx];
+  document.getElementById("surpriseReveal").innerHTML =
+    "<div class='emoji-scene'>"+d.base+" "+d.acc+"</div><div class='wordbig' style='font-size:1.8rem;letter-spacing:0'>"+(isNew?"✨ NEW! ":"Twin! ")+d.name+" ✨</div>";
+  dollBase=d.base; dollName=d.name;
+  localStorage.setItem("roseDollBase",dollBase); localStorage.setItem("roseDollName",dollName);
+  applyDoll(); renderSurprise();
+  speak("Surprise! You got "+(isNew?"a new doll! ":"a twin doll! ")+d.name+"! She is on your stage now. Dress her up!");
+});
+renderSurprise();
+
+/* STORY — decodable + sight words, tap a word to sound it out */
+const SIGHT = ["the","and","is","a","i","she","likes","rose"];
+const STORY = [
+  {e:"🔵😢", s:"Sam the slime is sad."},
+  {e:"🪑", s:"Sam sat and sat."},
+  {e:"👧🌸", s:"Rose ran to Sam."},
+  {e:"🩷🟢", s:"Pat and Pip pop in."},
+  {e:"🎉🔵🩷🟢", s:"Sam is not sad. Sam can sing and tap!"}
+];
+const sp = document.getElementById("storyPages");
+STORY.forEach((pg,pi)=>{
+  const card=document.createElement("div"); card.className="card";
+  const scene=document.createElement("div"); scene.className="emoji-scene"; scene.textContent=pg.e; card.appendChild(scene);
+  const sent=document.createElement("div"); sent.className="sentence";
+  pg.s.replace(".","").split(" ").forEach(w=>{
+    const span=document.createElement("span"); span.className="w"; span.textContent=w;
+    span.addEventListener("click",()=>{
+      const clean=w.toLowerCase();
+      if(SIGHT.includes(clean)) playClip("audio/sight_"+clean+".mp3", clean);
+      else playClip("audio/word_"+clean+".mp3", clean);
+    });
+    sent.appendChild(span); sent.appendChild(document.createTextNode(" "));
+  });
+  sent.appendChild(document.createTextNode("."));
+  card.appendChild(sent);
+  const hear=document.createElement("button"); hear.className="bigbtn blue"; hear.textContent="🔊 Hear it";
+  hear.addEventListener("click",()=>playClip("audio/story_"+(pi+1)+".mp3", pg.s));
+  card.appendChild(hear); sp.appendChild(card);
+});
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+let deferredInstall = null;
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstall = e; const b=document.getElementById("installBtn"); if(b) b.style.display="inline-block"; });
+function installApp(){ if(deferredInstall){ deferredInstall.prompt(); deferredInstall.userChoice.finally(()=>{ deferredInstall=null; }); } }
+</script>
+</body>
+</html>

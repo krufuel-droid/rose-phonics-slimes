@@ -1,0 +1,31 @@
+{
+  "name": "Rose's Phonics Slimes \u2014 Learn to Read & Spell",
+  "short_name": "Phonics Slimes",
+  "description": "A voice-first phonics, reading and spelling app with friendly slimes, dress-up and surprise doll rewards, made for Rose.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff5f9",
+  "theme_color": "#ff8fb8",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
