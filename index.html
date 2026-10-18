@@ -59,7 +59,7 @@
   #dollStage { position:relative; width:300px; height:404px; margin:10px auto; background:linear-gradient(#eaf7ff,#ffeef6); border-radius:22px; overflow:hidden; }
   #dollSvg { display:block; margin:6px auto 0; height:392px; width:auto; max-width:96%; }
   .skin { fill:#f1c27d; } .hairf { fill:#ff8fb8; } .eye { fill:#33272a; }
-  #dollSvg { transform-origin:50% 100%; }
+  #dollSvg { transform-origin:50% 100%; touch-action:none; }
   .pickDot { width:38px; height:38px; border-radius:50%; border:3px solid #fff; box-shadow:0 2px 5px rgba(0,0,0,.25); cursor:pointer; padding:0; }
   #wardrobe { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:14px 0; }
   .outfitBtn { width:96px; padding:10px 4px; border-radius:16px; border:3px solid #eee; background:#fff; font-family:inherit; font-size:.9rem; cursor:pointer; }
@@ -222,9 +222,10 @@
     <ellipse cx="160" cy="112" rx="16" ry="37" class="hairf"/>
   </g>
   <g id="hb-curly" style="display:none">
-    <circle cx="64" cy="64" r="17" class="hairf"/><circle cx="156" cy="64" r="17" class="hairf"/>
-    <circle cx="56" cy="96" r="15" class="hairf"/><circle cx="164" cy="96" r="15" class="hairf"/>
-    <circle cx="80" cy="44" r="16" class="hairf"/><circle cx="140" cy="44" r="16" class="hairf"/>
+    <ellipse cx="110" cy="80" rx="57" ry="50" class="hairf"/>
+    <circle cx="58" cy="104" r="13" class="hairf"/><circle cx="66" cy="122" r="12" class="hairf"/>
+    <circle cx="162" cy="104" r="13" class="hairf"/><circle cx="154" cy="122" r="12" class="hairf"/>
+    <circle cx="76" cy="36" r="13" class="hairf"/><circle cx="144" cy="36" r="13" class="hairf"/>
   </g>
   <!-- legs & base shoes -->
   <rect x="88" y="246" width="16" height="80" rx="8" class="skin"/>
@@ -275,7 +276,9 @@
     <circle cx="63" cy="82" r="5.5" fill="#ffd166"/><circle cx="157" cy="82" r="5.5" fill="#ffd166"/>
   </g>
   <g id="hf-curly" style="display:none">
-    <circle cx="78" cy="48" r="13" class="hairf"/><circle cx="110" cy="40" r="14" class="hairf"/><circle cx="142" cy="48" r="13" class="hairf"/>
+    <circle cx="74" cy="60" r="11" class="hairf"/><circle cx="92" cy="54" r="11.5" class="hairf"/>
+    <circle cx="110" cy="52" r="12" class="hairf"/><circle cx="128" cy="54" r="11.5" class="hairf"/>
+    <circle cx="146" cy="60" r="11" class="hairf"/>
   </g>
   <!-- neck items -->
   <g id="gScarf" style="display:none">
@@ -333,7 +336,8 @@
   </div>
   <p id="dressMsg" class="hint"></p>
   <div id="wardrobe"></div>
-  <p><button class="bigbtn" id="takeOffAll">Take everything off 🔄</button></p>
+  <p class="hint">✋ You can <b>drag</b> her accessories anywhere you like — put the bow on her hat, the crown on her shoe, anywhere! They stay where you put them.</p>
+  <p><button class="bigbtn" id="takeOffAll">Take everything off 🔄</button> <button class="bigbtn" id="resetPosBtn">Put accessories back ↩️</button></p>
   <div class="card">
     <h3>🎁 Surprise Dolls!</h3>
     <p class="hint" id="ballCount">Surprise balls: 0</p>
@@ -618,6 +622,10 @@ function renderWardrobe(){
     const g=document.getElementById(o.gid);
     if(g) g.style.display = worn.includes(idx) ? "" : "none";
   });
+  OUTFITS.forEach((o,idx)=>{
+    const g=document.getElementById(o.gid);
+    if(g){ const off=itemPos[idx]; if(off) g.setAttribute("transform","translate("+off[0]+" "+off[1]+")"); else g.removeAttribute("transform"); }
+  });
   const dressOn = worn.some(idx=>OUTFITS[idx].gid==="gDress");
   document.getElementById("gBaseClothes").style.display = dressOn ? "none" : "";
   const w=document.getElementById("wardrobe"); w.innerHTML="";
@@ -628,7 +636,7 @@ function renderWardrobe(){
     b.innerHTML="<span class='oe'>"+(unlocked?o.icon:"🔒")+"</span>"+(unlocked?o.name:("⭐ "+o.need+" stars"));
     if(unlocked) b.addEventListener("click",()=>{
       if(worn.includes(idx)) worn = worn.filter(x=>x!==idx);
-      else { worn = worn.filter(x=>OUTFITS[x].pos!==o.pos); worn.push(idx); playClip("audio/wearing_"+idx+".mp3"); }
+      else { worn.push(idx); playClip("audio/wearing_"+idx+".mp3"); }
       localStorage.setItem("roseWorn",JSON.stringify(worn)); renderWardrobe();
     });
     w.appendChild(b);
@@ -638,6 +646,46 @@ function renderWardrobe(){
     ("Next outfit: "+next.name+" — earn "+(next.need-stars)+" more ⭐ by finishing lessons!") :
     "You unlocked EVERY outfit! She is the best-dressed doll ever! 🎉";
 }
+/* DRAG THE ACCESSORIES — Rose puts every piece exactly where she wants it */
+let itemPos = {};
+try{ itemPos = JSON.parse(localStorage.getItem("roseItemPos")||"{}"); }catch(e){ itemPos = {}; }
+function saveItemPos(){ localStorage.setItem("roseItemPos", JSON.stringify(itemPos)); }
+(function(){
+  const svg = document.getElementById("dollSvg");
+  function toSvg(evt){
+    const pt = new DOMPoint(evt.clientX, evt.clientY);
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+  OUTFITS.forEach((o,idx)=>{
+    const g = document.getElementById(o.gid);
+    if(!g) return;
+    g.style.cursor = "grab";
+    g.addEventListener("pointerdown", evt=>{
+      if(!worn.includes(idx)) return;
+      evt.preventDefault();
+      const start = toSvg(evt);
+      const cur = itemPos[idx] || [0,0];
+      const ox = cur[0], oy = cur[1];
+      function mv(e2){
+        const now = toSvg(e2);
+        let nx = ox + (now.x - start.x), ny = oy + (now.y - start.y);
+        nx = Math.max(-95, Math.min(95, nx)); ny = Math.max(-150, Math.min(150, ny));
+        itemPos[idx] = [Math.round(nx), Math.round(ny)];
+        g.setAttribute("transform","translate("+itemPos[idx][0]+" "+itemPos[idx][1]+")");
+      }
+      function up(){
+        window.removeEventListener("pointermove", mv);
+        window.removeEventListener("pointerup", up);
+        saveItemPos();
+      }
+      window.addEventListener("pointermove", mv);
+      window.addEventListener("pointerup", up);
+    });
+  });
+  const rb = document.getElementById("resetPosBtn");
+  if(rb) rb.addEventListener("click", ()=>{ itemPos = {}; saveItemPos(); renderWardrobe(); });
+})();
+
 function checkOutfits(announce){
   const now = OUTFITS.filter(o=>stars>=o.need).length;
   if(now>knownUnlocked){
@@ -832,7 +880,7 @@ STORY.forEach((pg,pi)=>{
       return;
     }
     clearTimeout(timer);
-    ["roseStars","roseWorn","roseDolls","roseSurpriseOpened","roseDollBase","roseDollName","roseDollBg","roseSkin","roseHairStyle","roseHairColor","roseEyes","roseTop","roseSkirt","roseFreckles","roseGlasses","roseScale"].forEach(k=>localStorage.removeItem(k));
+    ["roseStars","roseWorn","roseDolls","roseSurpriseOpened","roseDollBase","roseDollName","roseDollBg","roseSkin","roseHairStyle","roseHairColor","roseEyes","roseTop","roseSkirt","roseFreckles","roseGlasses","roseScale","roseItemPos"].forEach(k=>localStorage.removeItem(k));
     msg.textContent = "All erased! Starting fresh in a moment…";
     setTimeout(()=>location.reload(), 700);
   });
