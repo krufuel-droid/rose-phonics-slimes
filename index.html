@@ -310,8 +310,8 @@ updateGhost();
 
 /* BLEND */
 const BLEND = [
-  {w:"sat",e:"🪑"},{w:"pat",e:"👋"},{w:"tap",e:"👆"},{w:"pin",e:"📌"},{w:"nap",e:"😴"},
-  {w:"man",e:"👨"},{w:"map",e:"🗺️"},{w:"sit",e:"🪑"},{w:"dad",e:"👨‍👧"},{w:"mad",e:"😠"},
+  {w:"sat",e:"👧🪑"},{w:"pat",e:"🫳"},{w:"tap",e:"👆"},{w:"pin",e:"📌"},{w:"nap",e:"😴"},
+  {w:"man",e:"👨"},{w:"map",e:"🗺️"},{w:"sit",e:"👧🪑"},{w:"dad",e:"👨‍👧"},{w:"mad",e:"😠"},
   {w:"cat",e:"🐱"},{w:"pig",e:"🐷"},{w:"dog",e:"🐶"},{w:"sun",e:"☀️"}
 ];
 let bi = 0;
@@ -361,7 +361,7 @@ function updateDrawPrompt(){
     letterIdx < item.w.length ? ("Draw letter "+(letterIdx+1)+" of "+item.w.length+". What sound do you hear?") : "All done! Tap Show me the word and check your letters!";
   document.getElementById("spellGhost").textContent = "";
 }
-document.getElementById("hearSpell").addEventListener("click",()=>playClip("audio/word_"+SPELL[si].w+".mp3", SPELL[si].w));
+document.getElementById("hearSpell").addEventListener("click",()=>playClip("audio/say_"+SPELL[si].w+".mp3", SPELL[si].w));
 document.getElementById("soundSpell").addEventListener("click",()=>playClip("audio/word_"+SPELL[si].w+".mp3", SPELL[si].w));
 document.getElementById("clearSpell").addEventListener("click",()=>spellDraw.clear());
 document.getElementById("nextLetter").addEventListener("click",()=>{
@@ -388,7 +388,7 @@ document.getElementById("backTyped").addEventListener("click",()=>{ const t=docu
 document.getElementById("doneTyped").addEventListener("click",()=>{
   const t=document.getElementById("typed").textContent.trim().toLowerCase(), target=SPELL[si].w, msg=document.getElementById("typeMsg");
   if(t===target){ msg.textContent="⭐ YES! You spelled "+target+"!"; playClip("audio/typed_"+target+".mp3"); addStar(); }
-  else { msg.textContent="Listen and try the whole word again — you can do it!"; playClip("audio/prompt_try_again.mp3", null, ()=>playClip("audio/word_"+target+".mp3")); document.getElementById("typed").textContent=""; }
+  else { msg.textContent="Listen and try the whole word again — you can do it!"; playClip("audio/prompt_try_again.mp3", null, ()=>playClip("audio/say_"+target+".mp3")); document.getElementById("typed").textContent=""; }
 });
 document.getElementById("nextSpell").addEventListener("click",()=>{ si=(si+1)%SPELL.length; showSpell(); });
 showSpell();
