@@ -219,6 +219,13 @@
   <div id="storyPages"></div>
 </section>
 
+<div style="text-align:center;padding:10px 12px 46px;max-width:680px;margin:0 auto">
+  <h3>For Mom &amp; Dad 🔐</h3>
+  <p class="hint">Tested everything? Erase all stars, outfits, surprise dolls and the doll's look, and start completely fresh for Rose.</p>
+  <button class="bigbtn" id="resetBtn" style="background:#e5e7eb;color:#374151">🔄 Start all over</button>
+  <p class="hint" id="resetMsg"></p>
+</div>
+
 <script>
 const PHON = {s:"sss",a:"ah",t:"t",p:"p",i:"ih",n:"nnn",m:"mmm",d:"d",c:"k",g:"g",o:"oh",e:"eh",r:"rrr",u:"uh",b:"b",f:"fff",l:"lll",h:"hhh",w:"wuh",v:"vvv",k:"k",j:"j",y:"y",z:"zzz",x:"ks",q:"kw"};
 const EXAMPLE = {s:"snake 🐍",a:"apple 🍎",t:"tap 👆",p:"pig 🐷",i:"igloo 🧊",n:"nose 👃",m:"moon 🌙",d:"dad 👨"};
@@ -628,6 +635,25 @@ STORY.forEach((pg,pi)=>{
   hear.addEventListener("click",()=>playClip("audio/story_"+(pi+1)+".mp3", pg.s));
   card.appendChild(hear); sp.appendChild(card);
 });
+
+/* RESET — parent control, two-tap so little fingers can't wipe progress by accident */
+(function(){
+  const btn = document.getElementById("resetBtn"), msg = document.getElementById("resetMsg");
+  let armed = false, timer = null;
+  btn.addEventListener("click", ()=>{
+    if(!armed){
+      armed = true;
+      btn.textContent = "⚠️ Are you sure? Tap again to erase EVERYTHING";
+      btn.style.background = "#ffb3b3";
+      timer = setTimeout(()=>{ armed=false; btn.textContent="🔄 Start all over"; btn.style.background="#e5e7eb"; }, 5000);
+      return;
+    }
+    clearTimeout(timer);
+    ["roseStars","roseWorn","roseDolls","roseSurpriseOpened","roseDollBase","roseDollName","roseDollBg"].forEach(k=>localStorage.removeItem(k));
+    msg.textContent = "All erased! Starting fresh in a moment…";
+    setTimeout(()=>location.reload(), 700);
+  });
+})();
 </script>
 <script>
 if ("serviceWorker" in navigator) {
