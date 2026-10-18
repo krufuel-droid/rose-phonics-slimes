@@ -215,7 +215,7 @@
 
 <!-- STORY -->
 <section id="story">
-  <h2>The Sad Little Slime</h2>
+  <h2>Rose and the Friendly Slimes</h2>
   <p class="hint">Tap any word to sound it out. Tap 🔊 to hear the whole sentence.</p>
   <div id="storyPages"></div>
 </section>
@@ -597,29 +597,31 @@ document.getElementById("openSurprise").addEventListener("click",()=>{
 renderSurprise();
 
 /* STORY — decodable + sight words, tap a word to sound it out */
-const SIGHT = ["the","and","is","a","i","she","likes","rose"];
+const SIGHT = ["the","and","is","a","i","she","likes","rose","not"];
 const STORY = [
-  {e:"🔵😢", s:"Sam the slime is sad."},
-  {e:"🪑", s:"Sam sat and sat."},
-  {e:"👧🌸", s:"Rose ran to Sam."},
-  {e:"🩷🟢", s:"Pat and Pip pop in."},
-  {e:"🎉🔵🩷🟢", s:"Sam is not sad. Sam can sing and tap!"}
+  {g:"story1", s:"The blue slime is sad."},
+  {g:"story2", s:"Rose runs to the slime."},
+  {g:"story3", s:"Rose has a pink slime and a green slime."},
+  {g:"story4", s:"The slimes can sing and tap."},
+  {g:"story5", s:"The slime is not sad. The slimes can play!"}
 ];
 const sp = document.getElementById("storyPages");
 STORY.forEach((pg,pi)=>{
   const card=document.createElement("div"); card.className="card";
-  const scene=document.createElement("div"); scene.className="emoji-scene"; scene.textContent=pg.e; card.appendChild(scene);
+  const scene=document.createElement("img"); scene.className="animGif"; scene.src="anim/"+pg.g+".gif"; scene.alt="Story picture"; card.appendChild(scene);
   const sent=document.createElement("div"); sent.className="sentence";
-  pg.s.replace(".","").split(" ").forEach(w=>{
-    const span=document.createElement("span"); span.className="w"; span.textContent=w;
+  pg.s.split(" ").forEach(tok=>{
+    const m = tok.match(/^([A-Za-z]+)(.*)$/);
+    const span=document.createElement("span"); span.className="w"; span.textContent=m[1];
+    const clean=m[1].toLowerCase();
     span.addEventListener("click",()=>{
-      const clean=w.toLowerCase();
       if(SIGHT.includes(clean)) playClip("audio/sight_"+clean+".mp3", clean);
       else playClip("audio/word_"+clean+".mp3", clean);
     });
-    sent.appendChild(span); sent.appendChild(document.createTextNode(" "));
+    sent.appendChild(span);
+    if(m[2]) sent.appendChild(document.createTextNode(m[2]));
+    sent.appendChild(document.createTextNode(" "));
   });
-  sent.appendChild(document.createTextNode("."));
   card.appendChild(sent);
   const hear=document.createElement("button"); hear.className="bigbtn blue"; hear.textContent="🔊 Hear it";
   hear.addEventListener("click",()=>playClip("audio/story_"+(pi+1)+".mp3", pg.s));
