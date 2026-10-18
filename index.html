@@ -431,7 +431,7 @@ const BLEND = [
   {w:"cat",e:"🐱"},{w:"pig",e:"🐷"},{w:"dog",e:"🐶"},{w:"sun",e:"☀️"}
 ];
 let bi = 0;
-function showBlend(){
+function showBlend(silent){
   const item = BLEND[bi];
   document.getElementById("blendEmoji").textContent = item.e;
   document.getElementById("blendWord").style.visibility="hidden";
@@ -444,7 +444,7 @@ function showBlend(){
     btn.addEventListener("click",()=>{ bounce(btn); playClip("audio/letter_"+L+".mp3", PHON[L]||L); });
     wrap.appendChild(btn);
   });
-  playClip("audio/prompt_blend.mp3");
+  if(!silent) playClip("audio/prompt_blend.mp3");
 }
 document.getElementById("blendBtn").addEventListener("click",()=>{
   const item = BLEND[bi];
@@ -453,12 +453,12 @@ document.getElementById("blendBtn").addEventListener("click",()=>{
   addStar();
 });
 document.getElementById("nextBlend").addEventListener("click",()=>{ bi=(bi+1)%BLEND.length; showBlend(); });
-showBlend();
+showBlend(true);
 
 /* SPELL — draw or type, NO tiles */
 const SPELL = BLEND.slice();
 let si = 0, letterIdx = 0, drawn = [];
-function showSpell(){
+function showSpell(silent){
   const item = SPELL[si];
   letterIdx = 0; drawn = [];
   document.getElementById("spellEmoji").textContent = item.e;
@@ -469,7 +469,7 @@ function showSpell(){
   const slots = document.getElementById("spellSlots"); slots.innerHTML="";
   item.w.split("").forEach(()=>{ const d=document.createElement("div"); d.className="slot"; slots.appendChild(d); });
   spellDraw.clear(); updateDrawPrompt();
-  playClip("audio/prompt_spell.mp3");
+  if(!silent) playClip("audio/prompt_spell.mp3");
 }
 function updateDrawPrompt(){
   const item = SPELL[si];
@@ -507,7 +507,7 @@ document.getElementById("doneTyped").addEventListener("click",()=>{
   else { msg.textContent="Listen and try the whole word again — you can do it!"; playClip("audio/prompt_try_again.mp3", null, ()=>playClip("audio/say_"+target+".mp3")); document.getElementById("typed").textContent=""; }
 });
 document.getElementById("nextSpell").addEventListener("click",()=>{ si=(si+1)%SPELL.length; showSpell(); });
-showSpell();
+showSpell(true);
 
 /* SHE LIKES ___ING */
 const LIKES = [
