@@ -172,7 +172,7 @@
 <!-- SHE LIKES ___ING -->
 <section id="likes">
   <h2>She likes… and lots more!</h2>
-  <p class="hint">Tap a picture. Hear the sentence! See how every action word ends in <b style="color:#e5437e">ing</b>? Then try all the other patterns below — <b>She can…</b>, <b>She has a…</b>, <b>I see a…</b>, and word families with the same ending.</p>
+  <p class="hint">Tap a picture. Hear the sentence — <b>She likes to…</b> — then sound out the action word! Then try all the other patterns below — <b>She can…</b>, <b>She has a…</b>, <b>I see a…</b>, and word families with the same ending.</p>
   <div id="likesCards"></div>
   <h2>More sentence patterns</h2>
   <div id="patternCards"></div>
@@ -409,9 +409,10 @@ const LIKES = [
 const lc = document.getElementById("likesCards");
 LIKES.forEach(it=>{
   const card=document.createElement("div"); card.className="card";
-  card.innerHTML = '<img class="animGif" src="anim/'+it.word+'.gif" alt="A girl '+it.word+' — animated picture"><div class="sentence">She likes <b>'+it.base+'<span class="ing">ing</span></b>.</div><p class="hint">'+it.note+' The word is '+it.base+' + <b style="color:#e5437e">ing</b></p>';
+  const VERB_LOWER = ({"singing":"sing","reading":"read","dancing":"dance","painting":"paint","swimming":"swim","playing":"play","jumping":"jump","cooking":"cook","running":"run","sleeping":"sleep"})[it.word] || it.word;
+  card.innerHTML = '<img class="animGif" src="anim/'+it.word+'.gif" alt="A girl '+VERB_LOWER+' — animated picture"><div class="sentence">She likes to <b>'+VERB_LOWER+'</b>.</div><p class="hint">'+it.note+' The action word is <b style="color:#e5437e">'+VERB_LOWER.toUpperCase()+'</b></p>';
   const hear=document.createElement("button"); hear.className="bigbtn blue"; hear.textContent="🔊 Hear the sentence";
-  hear.addEventListener("click",()=>playClip("audio/likes_"+it.word+".mp3", "She likes "+it.word+"."));
+  hear.addEventListener("click",()=>playClip("audio/likes_"+it.word+".mp3", "She likes to "+VERB_LOWER+"."));
   const VERB = ({"singing":"SING","reading":"READ","dancing":"DANCE","painting":"PAINT","swimming":"SWIM","playing":"PLAY","jumping":"JUMP","cooking":"COOK","running":"RUN","sleeping":"SLEEP"})[it.word] || it.word.toUpperCase();
   const spell=document.createElement("button"); spell.className="bigbtn pink"; spell.textContent="🐌 Sound out "+VERB;
   spell.addEventListener("click",()=>playClip("audio/soundout_"+it.word+".mp3", it.word));
