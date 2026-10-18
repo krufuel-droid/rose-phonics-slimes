@@ -58,7 +58,8 @@
   #outfitBanner { display:none; background:#fff3b0; border:3px solid #ffc65c; border-radius:16px; padding:12px; margin:12px auto; max-width:600px; font-size:1.15rem; }
   #dollStage { position:relative; width:300px; height:404px; margin:10px auto; background:linear-gradient(#eaf7ff,#ffeef6); border-radius:22px; overflow:hidden; }
   #dollSvg { display:block; margin:6px auto 0; height:392px; width:auto; max-width:96%; }
-  .skin { fill:#f1c27d; } .hairf { fill:#ff8fb8; }
+  .skin { fill:#f1c27d; } .hairf { fill:#ff8fb8; } .eye { fill:#33272a; }
+  #dollSvg { transform-origin:50% 100%; }
   .pickDot { width:38px; height:38px; border-radius:50%; border:3px solid #fff; box-shadow:0 2px 5px rgba(0,0,0,.25); cursor:pointer; padding:0; }
   #wardrobe { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:14px 0; }
   .outfitBtn { width:96px; padding:10px 4px; border-radius:16px; border:3px solid #eee; background:#fff; font-family:inherit; font-size:.9rem; cursor:pointer; }
@@ -190,6 +191,8 @@
     <div class="chips" id="hairStylePicker"></div>
     <p class="hint">Hair color:</p>
     <div class="chips" id="hairColorPicker"></div>
+    <p class="hint">Eyes:</p>
+    <div class="chips" id="eyeColorPicker"></div>
     <p class="hint">Her name:</p>
     <div class="chips" id="namePicker"></div>
     <p class="hint">Room color:</p>
@@ -215,8 +218,8 @@
     <path d="M56,74 a54,50 0 0 1 108,0 l0,86 a20,20 0 0 1 -20,20 l-68,0 a20,20 0 0 1 -20,-20 Z" class="hairf"/>
   </g>
   <g id="hb-pig" style="display:none">
-    <ellipse cx="57" cy="138" rx="15" ry="27" class="hairf"/>
-    <ellipse cx="163" cy="138" rx="15" ry="27" class="hairf"/>
+    <ellipse cx="60" cy="112" rx="16" ry="37" class="hairf"/>
+    <ellipse cx="160" cy="112" rx="16" ry="37" class="hairf"/>
   </g>
   <g id="hb-curly" style="display:none">
     <circle cx="64" cy="64" r="17" class="hairf"/><circle cx="156" cy="64" r="17" class="hairf"/>
@@ -236,8 +239,8 @@
   <!-- neck + torso base clothes -->
   <rect x="99" y="120" width="22" height="26" rx="6" class="skin"/>
   <g id="gBaseClothes">
-    <rect x="70" y="142" width="80" height="58" rx="14" fill="#7bd8c9"/>
-    <path d="M70,196 L150,196 L164,254 L56,254 Z" fill="#b79ced"/>
+    <rect id="baseTop" x="70" y="142" width="80" height="58" rx="14" fill="#7bd8c9"/>
+    <path id="baseSkirt" d="M70,196 L150,196 L164,254 L56,254 Z" fill="#b79ced"/>
   </g>
   <g id="gDress" style="display:none">
     <path d="M72,142 L148,142 L146,182 L74,182 Z" fill="#ff6fa5"/>
@@ -249,15 +252,28 @@
   <!-- head & face -->
   <circle cx="64" cy="92" r="9" class="skin"/><circle cx="156" cy="92" r="9" class="skin"/>
   <circle cx="110" cy="88" r="45" class="skin"/>
-  <ellipse cx="92" cy="90" rx="5.5" ry="8.5" fill="#33272a"/><ellipse cx="128" cy="90" rx="5.5" ry="8.5" fill="#33272a"/>
+  <ellipse class="eye" cx="92" cy="90" rx="5.5" ry="8.5"/><ellipse class="eye" cx="128" cy="90" rx="5.5" ry="8.5"/>
   <circle cx="94" cy="87" r="2" fill="#fff"/><circle cx="130" cy="87" r="2" fill="#fff"/>
   <path d="M84,76 Q92,71 100,76" stroke="#33272a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
   <path d="M120,76 Q128,71 136,76" stroke="#33272a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
   <path d="M99,108 Q110,119 121,108" stroke="#33272a" stroke-width="3" fill="none" stroke-linecap="round"/>
   <ellipse cx="77" cy="103" rx="7.5" ry="4.5" fill="#ffb3c6"/><ellipse cx="143" cy="103" rx="7.5" ry="4.5" fill="#ffb3c6"/>
+  <g id="featFreckles" style="display:none" fill="#b07a45" opacity="0.8">
+    <circle cx="72" cy="97" r="1.9"/><circle cx="80" cy="101" r="1.9"/><circle cx="66" cy="103" r="1.9"/>
+    <circle cx="148" cy="97" r="1.9"/><circle cx="140" cy="101" r="1.9"/><circle cx="154" cy="103" r="1.9"/>
+    <circle cx="104" cy="99" r="1.7"/><circle cx="116" cy="99" r="1.7"/>
+  </g>
+  <g id="featGlasses" style="display:none" fill="none" stroke="#5b4a8a" stroke-width="3">
+    <circle cx="92" cy="90" r="15"/><circle cx="128" cy="90" r="15"/>
+    <line x1="107" y1="88" x2="113" y2="88"/><line x1="77" y1="86" x2="66" y2="82"/><line x1="143" y1="86" x2="154" y2="82"/>
+  </g>
   <!-- hair front -->
   <path id="hfCap" d="M64,90 C60,36 160,36 156,90 C146,60 132,54 110,54 C88,54 74,60 64,90 Z" class="hairf"/>
   <circle id="hf-bun" cx="110" cy="30" r="17" class="hairf" style="display:none"/>
+  <g id="hf-pig" style="display:none">
+    <circle cx="69" cy="64" r="10" class="hairf"/><circle cx="151" cy="64" r="10" class="hairf"/>
+    <circle cx="63" cy="82" r="5.5" fill="#ffd166"/><circle cx="157" cy="82" r="5.5" fill="#ffd166"/>
+  </g>
   <g id="hf-curly" style="display:none">
     <circle cx="78" cy="48" r="13" class="hairf"/><circle cx="110" cy="40" r="14" class="hairf"/><circle cx="142" cy="48" r="13" class="hairf"/>
   </g>
@@ -602,6 +618,8 @@ function renderWardrobe(){
     const g=document.getElementById(o.gid);
     if(g) g.style.display = worn.includes(idx) ? "" : "none";
   });
+  const dressOn = worn.some(idx=>OUTFITS[idx].gid==="gDress");
+  document.getElementById("gBaseClothes").style.display = dressOn ? "none" : "";
   const w=document.getElementById("wardrobe"); w.innerHTML="";
   OUTFITS.forEach((o,idx)=>{
     const unlocked = stars>=o.need;
@@ -644,6 +662,13 @@ const BGS = [["🩷 Pink","linear-gradient(#ffe3f0,#ffffff)"],["💚 Mint","line
 let dollSkin = localStorage.getItem("roseSkin")||"#f1c27d";
 let dollHairStyle = localStorage.getItem("roseHairStyle")||"long";
 let dollHairColor = localStorage.getItem("roseHairColor")||"#ff8fb8";
+let dollEyes = localStorage.getItem("roseEyes")||"#33272a";
+let dollTop = localStorage.getItem("roseTop")||"#7bd8c9";
+let dollSkirt = localStorage.getItem("roseSkirt")||"#b79ced";
+let dollFreckles = localStorage.getItem("roseFreckles")==="1";
+let dollGlasses = localStorage.getItem("roseGlasses")==="1";
+let dollScale = parseFloat(localStorage.getItem("roseScale")||"1");
+const EYE_COLORS = [["#33272a","Brown"],["#3a7bd5","Blue"],["#3f9e4d","Green"],["#a67c2e","Hazel"],["#8b5cf6","Purple"],["#6b7280","Gray"]];
 let dollName = localStorage.getItem("roseDollName")||"Mira";
 let dollBg = localStorage.getItem("roseDollBg")||BGS[0][1];
 function applyDoll(){
@@ -653,26 +678,45 @@ function applyDoll(){
     const g=document.getElementById(id); if(g) g.style.display = dollHairStyle===st ? "" : "none";
   });
   document.getElementById("hf-bun").style.display = dollHairStyle==="bun" ? "" : "none";
+  document.getElementById("hf-pig").style.display = dollHairStyle==="pigtails" ? "" : "none";
   document.getElementById("hf-curly").style.display = dollHairStyle==="curly" ? "" : "none";
+  document.querySelectorAll("#dollSvg .eye").forEach(el=>el.style.fill=dollEyes);
+  document.getElementById("baseTop").style.fill=dollTop;
+  document.getElementById("baseSkirt").style.fill=dollSkirt;
+  document.getElementById("featFreckles").style.display = dollFreckles ? "" : "none";
+  document.getElementById("featGlasses").style.display = dollGlasses ? "" : "none";
+  const svgEl=document.getElementById("dollSvg"); svgEl.style.transform="scale("+dollScale+")";
   document.getElementById("dollStage").style.background = dollBg;
   document.getElementById("dollNameLabel").textContent = "⭐ "+dollName+" ⭐";
   document.querySelectorAll("#skinPicker .pickDot").forEach(c=>c.style.outline = c.dataset.v===dollSkin ? "3px solid #e5437e" : "none");
   document.querySelectorAll("#hairColorPicker .pickDot").forEach(c=>c.style.outline = c.dataset.v===dollHairColor ? "3px solid #e5437e" : "none");
   document.querySelectorAll("#hairStylePicker .chip").forEach(c=>c.style.outline = c.dataset.v===dollHairStyle ? "3px solid #e5437e" : "none");
   document.querySelectorAll("#namePicker .chip").forEach(c=>c.style.outline = c.dataset.v===dollName ? "3px solid #e5437e" : "none");
+  document.querySelectorAll("#eyeColorPicker .pickDot").forEach(c=>c.style.outline = c.dataset.v===dollEyes ? "3px solid #e5437e" : "none");
 }
 const skp=document.getElementById("skinPicker");
 SKINS.forEach(s=>{ const btn=document.createElement("button"); btn.className="pickDot"; btn.dataset.v=s; btn.style.background=s; btn.setAttribute("aria-label","skin tone");
-  btn.addEventListener("click",()=>{ dollSkin=s; localStorage.setItem("roseSkin",s); applyDoll(); playClip("audio/prompt_pretty.mp3"); }); skp.appendChild(btn); });
+  btn.addEventListener("click",()=>{ dollSkin=s; localStorage.setItem("roseSkin",s); applyDoll(); }); skp.appendChild(btn); });
 const hsp=document.getElementById("hairStylePicker");
 HAIR_STYLES.forEach(([v,label])=>{ const btn=document.createElement("button"); btn.className="chip"; btn.dataset.v=v; btn.textContent=label;
-  btn.addEventListener("click",()=>{ dollHairStyle=v; localStorage.setItem("roseHairStyle",v); applyDoll(); playClip("audio/prompt_pretty.mp3"); }); hsp.appendChild(btn); });
+  btn.addEventListener("click",()=>{ dollHairStyle=v; localStorage.setItem("roseHairStyle",v); applyDoll(); }); hsp.appendChild(btn); });
 const hcp=document.getElementById("hairColorPicker");
 HAIR_COLORS.forEach(([c,label])=>{ const btn=document.createElement("button"); btn.className="pickDot"; btn.dataset.v=c; btn.style.background=c; btn.title=label; btn.setAttribute("aria-label",label+" hair");
-  btn.addEventListener("click",()=>{ dollHairColor=c; localStorage.setItem("roseHairColor",c); applyDoll(); playClip("audio/prompt_pretty.mp3"); }); hcp.appendChild(btn); });
+  btn.addEventListener("click",()=>{ dollHairColor=c; localStorage.setItem("roseHairColor",c); applyDoll(); }); hcp.appendChild(btn); });
+const ecp=document.getElementById("eyeColorPicker");
+EYE_COLORS.forEach(([c,label])=>{ const btn=document.createElement("button"); btn.className="pickDot"; btn.dataset.v=c; btn.style.background=c; btn.title=label; btn.setAttribute("aria-label",label+" eyes");
+  btn.addEventListener("click",()=>{ dollEyes=c; localStorage.setItem("roseEyes",c); applyDoll(); }); ecp.appendChild(btn); });
 const np=document.getElementById("namePicker");
+const NAME_LOOKS = {
+  "Mira": {skin:"#f1c27d", style:"long", color:"#ff8fb8", eyes:"#3a7bd5", top:"#ffd166", skirt:"#ff8fb8", freckles:false, glasses:false, scale:1},
+  "Lily": {skin:"#ffe0bd", style:"long", color:"#f7f3ea", eyes:"#8b5cf6", top:"#e3ccf7", skirt:"#c9a7eb", freckles:true, glasses:false, scale:0.84},
+  "Zoe": {skin:"#f1c27d", style:"pigtails", color:"#9b7ede", eyes:"#3f9e4d", top:"#9b7ede", skirt:"#ffd166", freckles:false, glasses:false, scale:0.84},
+  "Rumi": {skin:"#e0ac69", style:"bun", color:"#2e2226", eyes:"#33272a", top:"#e5437e", skirt:"#5b4a8a", freckles:false, glasses:true, scale:1.04}
+};
 NAMES.forEach(n=>{ const btn=document.createElement("button"); btn.className="chip"; btn.dataset.v=n; btn.textContent=n;
-  btn.addEventListener("click",()=>{ dollName=n; localStorage.setItem("roseDollName",n); applyDoll(); playClip("audio/name_"+n.toLowerCase()+".mp3"); }); np.appendChild(btn); });
+  btn.addEventListener("click",()=>{ dollName=n; localStorage.setItem("roseDollName",n);
+    if(NAME_LOOKS[n]) applyLook(NAME_LOOKS[n]); else applyDoll();
+    playClip("audio/name_"+n.toLowerCase()+".mp3"); }); np.appendChild(btn); });
 const gp=document.getElementById("bgPicker");
 BGS.forEach(([label,css])=>{ const btn=document.createElement("button"); btn.className="chip"; btn.textContent=label;
   btn.addEventListener("click",()=>{ dollBg=css; localStorage.setItem("roseDollBg",css); applyDoll(); }); gp.appendChild(btn); });
@@ -680,22 +724,32 @@ applyDoll();
 
 /* SURPRISE DOLLS — random reveal, earned with stars (generic surprise dolls, our own characters) */
 const SURPRISE_DOLLS = [
-  {name:"Star Singer", skin:"#f1c27d", style:"long", color:"#6b4429", acc:"🎤"},
-  {name:"Rainbow Painter", skin:"#c68642", style:"curly", color:"#2e2226", acc:"🎨"},
-  {name:"Ballerina Twirl", skin:"#ffe0bd", style:"bun", color:"#f2c14e", acc:"🩰"},
-  {name:"Doctor Helper", skin:"#8d5524", style:"pigtails", color:"#2e2226", acc:"🩺"},
-  {name:"Chef Cupcake", skin:"#ffe0bd", style:"bun", color:"#6b4429", acc:"🧁"},
-  {name:"Astronaut Nova", skin:"#8d5524", style:"curly", color:"#2e2226", acc:"🚀"},
-  {name:"Mermaid Pearl", skin:"#ffe0bd", style:"long", color:"#d96c47", acc:"🐚"},
-  {name:"Fairy Blossom", skin:"#f1c27d", style:"long", color:"#ff8fb8", acc:"🌸"},
-  {name:"Skater Zoom", skin:"#f1c27d", style:"pigtails", color:"#9b7ede", acc:"🛼"},
-  {name:"Puppy Pal", skin:"#c68642", style:"pigtails", color:"#6b4429", acc:"🐶"}
+  {name:"Star Singer", skin:"#f1c27d", style:"long", color:"#6b4429", eyes:"#33272a", top:"#ffd166", skirt:"#ff6fa5", freckles:false, glasses:false, scale:1, acc:"🎤"},
+  {name:"Rainbow Painter", skin:"#c68642", style:"curly", color:"#2e2226", eyes:"#3f9e4d", top:"#ff8fb8", skirt:"#4ecdc4", freckles:true, glasses:false, scale:0.97, acc:"🎨"},
+  {name:"Ballerina Twirl", skin:"#ffe0bd", style:"bun", color:"#f2c14e", eyes:"#3a7bd5", top:"#f7a8d8", skirt:"#fbc2eb", freckles:false, glasses:false, scale:0.94, acc:"🩰"},
+  {name:"Doctor Helper", skin:"#8d5524", style:"pigtails", color:"#2e2226", eyes:"#33272a", top:"#e8f4ff", skirt:"#7bd8c9", freckles:false, glasses:true, scale:1, acc:"🩺"},
+  {name:"Chef Cupcake", skin:"#ffe0bd", style:"bun", color:"#6b4429", eyes:"#a67c2e", top:"#ffe3ec", skirt:"#e5437e", freckles:true, glasses:false, scale:0.97, acc:"🧁"},
+  {name:"Astronaut Nova", skin:"#8d5524", style:"curly", color:"#2e2226", eyes:"#6b7280", top:"#dbe4ff", skirt:"#8d99ae", freckles:false, glasses:true, scale:1, acc:"🚀"},
+  {name:"Mermaid Pearl", skin:"#ffe0bd", style:"long", color:"#d96c47", eyes:"#3a7bd5", top:"#7bf1d3", skirt:"#38b2a8", freckles:false, glasses:false, scale:0.97, acc:"🐚"},
+  {name:"Fairy Blossom", skin:"#f1c27d", style:"long", color:"#ff8fb8", eyes:"#8b5cf6", top:"#c9f7c4", skirt:"#ff8fb8", freckles:true, glasses:false, scale:0.94, acc:"🌸"},
+  {name:"Skater Zoom", skin:"#f1c27d", style:"pigtails", color:"#9b7ede", eyes:"#3f9e4d", top:"#ffd93d", skirt:"#6bcbef", freckles:false, glasses:false, scale:0.97, acc:"🛼"},
+  {name:"Puppy Pal", skin:"#c68642", style:"pigtails", color:"#6b4429", eyes:"#33272a", top:"#f4a261", skirt:"#8d6e63", freckles:true, glasses:false, scale:0.94, acc:"🐶"}
 ];
-function dressAsDoll(d){
-  dollSkin=d.skin; dollHairStyle=d.style; dollHairColor=d.color; dollName=d.name;
-  localStorage.setItem("roseSkin",dollSkin); localStorage.setItem("roseHairStyle",dollHairStyle);
-  localStorage.setItem("roseHairColor",dollHairColor); localStorage.setItem("roseDollName",dollName);
+function applyLook(L){
+  if(L.skin){ dollSkin=L.skin; localStorage.setItem("roseSkin",dollSkin); }
+  if(L.style){ dollHairStyle=L.style; localStorage.setItem("roseHairStyle",dollHairStyle); }
+  if(L.color){ dollHairColor=L.color; localStorage.setItem("roseHairColor",dollHairColor); }
+  if(L.eyes){ dollEyes=L.eyes; localStorage.setItem("roseEyes",dollEyes); }
+  if(L.top){ dollTop=L.top; localStorage.setItem("roseTop",dollTop); }
+  if(L.skirt){ dollSkirt=L.skirt; localStorage.setItem("roseSkirt",dollSkirt); }
+  dollFreckles=!!L.freckles; localStorage.setItem("roseFreckles",dollFreckles?"1":"0");
+  dollGlasses=!!L.glasses; localStorage.setItem("roseGlasses",dollGlasses?"1":"0");
+  dollScale=L.scale||1; localStorage.setItem("roseScale",String(dollScale));
   applyDoll();
+}
+function dressAsDoll(d){
+  dollName=d.name; localStorage.setItem("roseDollName",dollName);
+  applyLook(d);
 }
 let surpriseOpened = parseInt(localStorage.getItem("roseSurpriseOpened")||"0",10);
 let myDolls = [];
@@ -778,7 +832,7 @@ STORY.forEach((pg,pi)=>{
       return;
     }
     clearTimeout(timer);
-    ["roseStars","roseWorn","roseDolls","roseSurpriseOpened","roseDollBase","roseDollName","roseDollBg","roseSkin","roseHairStyle","roseHairColor"].forEach(k=>localStorage.removeItem(k));
+    ["roseStars","roseWorn","roseDolls","roseSurpriseOpened","roseDollBase","roseDollName","roseDollBg","roseSkin","roseHairStyle","roseHairColor","roseEyes","roseTop","roseSkirt","roseFreckles","roseGlasses","roseScale"].forEach(k=>localStorage.removeItem(k));
     msg.textContent = "All erased! Starting fresh in a moment…";
     setTimeout(()=>location.reload(), 700);
   });
