@@ -1,3 +1,3 @@
-# Rose’s Phonics Slimes
+# Removed
 
-A voice-first phonics, reading and spelling phone app made for Rose. Open the live site on a phone and choose Install app / Add to Home screen.
+This app was removed at the owner's request on October 18, 2026.
